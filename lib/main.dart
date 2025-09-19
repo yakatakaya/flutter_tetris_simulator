@@ -375,53 +375,123 @@ class GameScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final size = MediaQuery.of(context).size;
-    // スマートフォンの縦画面に最適化
     final isPortrait = size.height > size.width;
 
     return PopScope(
-      canPop: false, // Androidの戻るジェスチャーを無効化
+      canPop: false,
       child: Scaffold(
         body: SafeArea(
           child: Padding(
             padding: const EdgeInsets.all(8.0),
-            child: isPortrait
-                ? Row(
-                    children: [
-                      const Expanded(
-                        flex: 3,
-                        child: GameBoard(),
+            child: Column(
+              children: [
+                Expanded(
+                  child: isPortrait
+                    ? Row(
+                        children: [
+                          const Expanded(
+                            flex: 3,
+                            child: GameBoard(),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            flex: 1,
+                            child: SidePanel(),
+                          ),
+                        ],
+                      )
+                    : Center(
+                        child: AspectRatio(
+                          aspectRatio: 9 / 16,
+                          child: Row(
+                            children: [
+                              const Expanded(
+                                flex: 3,
+                                child: GameBoard(),
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                flex: 1,
+                                child: SidePanel(),
+                              ),
+                            ],
+                          ),
+                        )
                       ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        flex: 1,
-                        child: SidePanel(),
-                      ),
-                    ],
-                  )
-                : Center(
-                    child: AspectRatio(
-                    aspectRatio: 9 / 16,
-                    child: Row(
+                ),
+                const SizedBox(height: 8),
+                Consumer(
+                  builder: (context, ref, _) {
+                    final gameController = ref.read(gameProvider.notifier);
+                    return Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
-                         const Expanded(
-                          flex: 3,
-                          child: GameBoard(),
+                        IconButton(
+                          icon: const Icon(Icons.undo, color: Colors.grey),
+                          onPressed: () => gameController.undoLastMove(),
                         ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          flex: 1,
-                          child: SidePanel(),
+                        IconButton(
+                          icon: const Icon(Icons.refresh, color: Colors.grey),
+                          onPressed: () => gameController.resetGame(),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.settings, color: Colors.grey),
+                          onPressed: () => _showSettingsDialog(context, ref),
                         ),
                       ],
-                    ),
-                  )),
+                    );
+                  },
+                ),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
+    void _showSettingsDialog(BuildContext context, WidgetRef ref) {
+     final gameController = ref.read(gameProvider.notifier);
+     final queueCount = ref.read(gameProvider).queueDisplayCount;
+      showDialog(
+          context: context,
+          builder: (context) {
+              return AlertDialog(
+                  backgroundColor: const Color(0xFF2a2a2a),
+                  title: const Text('Settings'),
+                  content: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text("Queue Count"),
+                          DropdownButton<int>(
+                            value: queueCount,
+                            items: List.generate(7, (i) => i + 1)
+                                .map((e) => DropdownMenuItem(value: e, child: Text(e.toString())))
+                                .toList(),
+                            onChanged: (value) {
+                              if (value != null) {
+                                gameController.setQueueDisplayCount(value);
+                                Navigator.of(context).pop(); // ダイアログを閉じて再表示
+                                _showSettingsDialog(context, ref);
+                              }
+                            },
+                          )
+                        ],
+                      ),
+                    ],
+                  ),
+                  actions: [
+                      TextButton(
+                          onPressed: () => Navigator.of(context).pop(),
+                          child: const Text('Close'),
+                      )
+                  ],
+              );
+          });
+  }
 }
-
 /// ゲーム盤面ウィジェット
 class GameBoard extends ConsumerWidget {
   const GameBoard({super.key});
@@ -558,7 +628,6 @@ class SidePanel extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final gameState = ref.watch(gameProvider);
-    final gameController = ref.read(gameProvider.notifier);
 
     return Column(
       children: [
@@ -573,7 +642,7 @@ class SidePanel extends ConsumerWidget {
                 child: AspectRatio(
                   aspectRatio: 1,
                   child: GestureDetector(
-                     onTap: () => gameController.holdPiece(),
+                     onTap: () => ref.read(gameProvider.notifier).holdPiece(),
                      child: PieceContainer(
                        piece: gameState.heldPiece,
                        isDraggable: gameState.heldPiece != null,
@@ -602,7 +671,6 @@ class SidePanel extends ConsumerWidget {
                       child: PieceContainer(
                         piece: gameState.queue[index],
                         isCurrent: index == 0,
-                        // 先頭のミノ(Current)のみドラッグ可能にする
                         isDraggable: index == 0,
                       ),
                     ),
@@ -612,69 +680,8 @@ class SidePanel extends ConsumerWidget {
             ],
           ),
         ),
-        // Control Buttons
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            IconButton(
-              icon: const Icon(Icons.undo, color: Colors.grey),
-              onPressed: () => gameController.undoLastMove(),
-            ),
-            IconButton(
-              icon: const Icon(Icons.refresh, color: Colors.grey),
-              onPressed: () => gameController.resetGame(),
-            ),
-            IconButton(
-              icon: const Icon(Icons.settings, color: Colors.grey),
-              onPressed: () => _showSettingsDialog(context, ref),
-            ),
-          ],
-        )
       ],
     );
-  }
-
-  void _showSettingsDialog(BuildContext context, WidgetRef ref) {
-     final gameController = ref.read(gameProvider.notifier);
-     final queueCount = ref.read(gameProvider).queueDisplayCount;
-      showDialog(
-          context: context,
-          builder: (context) {
-              return AlertDialog(
-                  backgroundColor: const Color(0xFF2a2a2a),
-                  title: const Text('Settings'),
-                  content: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Text("Queue Count"),
-                          DropdownButton<int>(
-                            value: queueCount,
-                            items: List.generate(7, (i) => i + 1)
-                                .map((e) => DropdownMenuItem(value: e, child: Text(e.toString())))
-                                .toList(),
-                            onChanged: (value) {
-                              if (value != null) {
-                                gameController.setQueueDisplayCount(value);
-                                Navigator.of(context).pop(); // ダイアログを閉じて再表示
-                                _showSettingsDialog(context, ref);
-                              }
-                            },
-                          )
-                        ],
-                      ),
-                    ],
-                  ),
-                  actions: [
-                      TextButton(
-                          onPressed: () => Navigator.of(context).pop(),
-                          child: const Text('Close'),
-                      )
-                  ],
-              );
-          });
   }
 }
 
