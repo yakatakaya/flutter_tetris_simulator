@@ -127,6 +127,8 @@ class GameState {
   final bool isPreviewValid;
   // ホールドが可能か
   final bool canHold;
+  // 自動ドロップ設定
+  final bool autoDrop;
 
   GameState({
     required this.board,
@@ -137,6 +139,7 @@ class GameState {
     this.dragPosition,
     this.isPreviewValid = false,
     this.canHold = true,
+    this.autoDrop = true,
   });
 
   // 初期状態を生成するファクトリコンストラクタ
@@ -167,6 +170,7 @@ class GameState {
     bool clearDragPosition = false,
     bool? isPreviewValid,
     bool? canHold,
+    bool? autoDrop,
   }) {
     return GameState(
       board: board ?? this.board,
@@ -177,6 +181,7 @@ class GameState {
       dragPosition: clearDragPosition ? null : dragPosition ?? this.dragPosition,
       isPreviewValid: isPreviewValid ?? this.isPreviewValid,
       canHold: canHold ?? this.canHold,
+      autoDrop: autoDrop ?? this.autoDrop,
     );
   }
 }
@@ -343,6 +348,11 @@ class GameController extends Notifier<GameState> {
   void setQueueDisplayCount(int count) {
     state = state.copyWith(queueDisplayCount: count);
   }
+
+  /// 自動ドロップ設定を切り替え
+  void setAutoDrop(bool value) {
+    state = state.copyWith(autoDrop: value);
+  }
 }
 
 // --- UI部分 (Widgets) ---
@@ -451,7 +461,7 @@ class GameScreen extends ConsumerWidget {
   }
     void _showSettingsDialog(BuildContext context, WidgetRef ref) {
      final gameController = ref.read(gameProvider.notifier);
-     final queueCount = ref.read(gameProvider).queueDisplayCount;
+     final gameState = ref.read(gameProvider);
       showDialog(
           context: context,
           builder: (context) {
@@ -466,7 +476,7 @@ class GameScreen extends ConsumerWidget {
                         children: [
                           const Text("Queue Count"),
                           DropdownButton<int>(
-                            value: queueCount,
+                            value: gameState.queueDisplayCount,
                             items: List.generate(7, (i) => i + 1)
                                 .map((e) => DropdownMenuItem(value: e, child: Text(e.toString())))
                                 .toList(),
@@ -478,6 +488,30 @@ class GameScreen extends ConsumerWidget {
                               }
                             },
                           )
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text("Auto Drop"),
+                          Consumer(
+                            builder: (context, ref, _) {
+                              final isAutoDrop = ref.watch(gameProvider).autoDrop;
+                              return ToggleButtons(
+                                isSelected: [isAutoDrop],
+                                onPressed: (index) {
+                                  gameController.setAutoDrop(!isAutoDrop);
+                                },
+                                children: const [
+                                  Padding(
+                                    padding: EdgeInsets.symmetric(horizontal: 12),
+                                    child: Text("ON"),
+                                  ),
+                                ],
+                              );
+                            },
+                          ),
                         ],
                       ),
                     ],
@@ -520,7 +554,17 @@ class GameBoard extends ConsumerWidget {
         },
         onAcceptWithDetails: (details) {
           if (gameState.dragPosition != null) {
-            gameController.placePiece(details.data, gameState.dragPosition!);
+            if (gameState.autoDrop) {
+              // Auto Drop モードの場合、最も下まで落とす
+              var dropPosition = gameState.dragPosition!;
+              while (_isValidPosition(details.data, Point(dropPosition.x, dropPosition.y + 1), gameState.board)) {
+                dropPosition = Point(dropPosition.x, dropPosition.y + 1);
+              }
+              gameController.placePiece(details.data, dropPosition);
+            } else {
+              // 通常モード
+              gameController.placePiece(details.data, gameState.dragPosition!);
+            }
           } else {
             gameController.stopDragging();
           }
@@ -546,6 +590,21 @@ class GameBoard extends ConsumerWidget {
         },
       );
     });
+  }
+  
+  /// ヘルパーメソッド: ミノの配置可能判定
+  static bool _isValidPosition(Tetromino piece, Point<int> position, List<List<Color?>> board) {
+    for (final block in piece.shape) {
+      final x = position.x + block.x;
+      final y = position.y + block.y;
+      if (x < 0 || x >= boardWidth || y < 0 || y >= boardHeight) {
+        return false;
+      }
+      if (board[y][x] != null) {
+        return false;
+      }
+    }
+    return true;
   }
 }
 
@@ -591,12 +650,38 @@ class GameBoardPainter extends CustomPainter {
     
     // ドラッグ中のプレビュー（ゴースト）を描画
     if (draggingPiece != null && dragPosition != null) {
+      var previewPosition = dragPosition!;
+      
+      // Auto Drop有効時は最下点を計算
+      if (isPreviewValid) {
+        var testPos = previewPosition;
+        while (_isValidPosition(draggingPiece!, Point(testPos.x, testPos.y + 1), board)) {
+          testPos = Point(testPos.x, testPos.y + 1);
+        }
+        previewPosition = testPos;
+      }
+      
       final color = isPreviewValid ? draggingPiece!.color.withValues(alpha: 0.5) : Colors.red.withValues(alpha: 0.5);
-       for (final block in draggingPiece!.shape) {
-         final pos = Point(dragPosition!.x + block.x, dragPosition!.y + block.y);
-         _drawBlock(canvas, pos, color);
-       }
+      for (final block in draggingPiece!.shape) {
+        final pos = Point(previewPosition.x + block.x, previewPosition.y + block.y);
+        _drawBlock(canvas, pos, color);
+      }
     }
+  }
+
+  /// ミノの配置可能判定
+  bool _isValidPosition(Tetromino piece, Point<int> position, List<List<Color?>> board) {
+    for (final block in piece.shape) {
+      final x = position.x + block.x;
+      final y = position.y + block.y;
+      if (x < 0 || x >= boardWidth || y < 0 || y >= boardHeight) {
+        return false;
+      }
+      if (board[y][x] != null) {
+        return false;
+      }
+    }
+    return true;
   }
 
   void _drawBlock(Canvas canvas, Point<int> pos, Color color) {
