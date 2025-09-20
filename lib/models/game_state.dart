@@ -1,6 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'tetromino.dart'; // パスを修正してください
+import 'tetromino.dart';
 import '../constants.dart'; // 定数ファイルをインポート
 
 /// ゲームの状態を管理するクラス

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../providers/game_provider.dart'; // パスを修正してください
-import '../widgets/game_board.dart'; // パスを修正してください
-import '../widgets/side_panel.dart'; // パスを修正してください
+import '../providers/game_provider.dart';
+import '../widgets/game_board.dart';
+import '../widgets/side_panel.dart';
 
 class GameScreen extends ConsumerWidget {
   const GameScreen({super.key});

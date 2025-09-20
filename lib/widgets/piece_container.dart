@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../models/tetromino.dart'; // パスを修正してください
-import '../providers/game_provider.dart'; // パスを修正してください
+import '../models/tetromino.dart';
+import '../providers/game_provider.dart';
 
 /// テトリミノ表示用のコンテナ
 class PieceContainer extends ConsumerWidget {

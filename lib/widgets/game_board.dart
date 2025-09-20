@@ -1,9 +1,9 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../constants.dart'; // パスを修正してください
-import '../models/tetromino.dart'; // パスを修正してください
-import '../providers/game_provider.dart'; // パスを修正してください
+import '../constants.dart';
+import '../models/tetromino.dart';
+import '../providers/game_provider.dart';
 
 
 /// ゲーム盤面ウィジェット

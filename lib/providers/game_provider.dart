@@ -1,8 +1,8 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../models/game_state.dart'; // パスを修正してください
-import '../models/tetromino.dart'; // パスを修正してください
+import '../models/game_state.dart';
+import '../models/tetromino.dart';
 import '../constants.dart'; // 定数ファイルをインポート
 
 final gameProvider = NotifierProvider<GameController, GameState>(GameController.new);

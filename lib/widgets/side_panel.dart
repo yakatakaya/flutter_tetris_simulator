@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../providers/game_provider.dart'; // パスを修正してください
-import '../widgets/piece_container.dart'; // パスを修正してください
+import '../providers/game_provider.dart';
+import '../widgets/piece_container.dart';
 
 /// 右側のサイドパネル (キュー、ホールド、設定)
 class SidePanel extends ConsumerWidget {
