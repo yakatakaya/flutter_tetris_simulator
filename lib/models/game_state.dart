@@ -20,7 +20,7 @@ class GameState {
     required this.board,
     required this.queue,
     this.heldPiece,
-    this.queueDisplayCount = 4,
+    this.queueDisplayCount = 5,
     this.draggingPiece,
     this.dragPosition,
     this.isPreviewValid = false,
