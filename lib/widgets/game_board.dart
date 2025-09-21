@@ -5,7 +5,6 @@ import '../constants.dart';
 import '../models/tetromino.dart';
 import '../providers/game_provider.dart';
 
-
 /// ゲーム盤面ウィジェット
 class GameBoard extends ConsumerWidget {
   const GameBoard({super.key});
@@ -16,13 +15,14 @@ class GameBoard extends ConsumerWidget {
     final gameController = ref.read(gameProvider.notifier);
 
     return LayoutBuilder(builder: (context, constraints) {
-      final double blockSize = min(constraints.maxWidth / boardWidth, constraints.maxHeight / boardHeight);
+      final double blockSize = min(constraints.maxWidth / boardWidth,
+          constraints.maxHeight / boardHeight);
 
       return DragTarget<Tetromino>(
         onMove: (details) {
           final renderBox = context.findRenderObject() as RenderBox;
           final localOffset = renderBox.globalToLocal(details.offset);
-          
+
           // 指の位置をグリッド座標に変換
           final int x = (localOffset.dx / blockSize).floor();
           final int y = (localOffset.dy / blockSize).floor();
@@ -37,7 +37,8 @@ class GameBoard extends ConsumerWidget {
             if (gameState.autoDrop) {
               // Auto Drop モードの場合、最も下まで落とす
               var dropPosition = gameState.dragPosition!;
-              while (_isValidPosition(details.data, Point(dropPosition.x, dropPosition.y + 1), gameState.board)) {
+              while (_isValidPosition(details.data,
+                  Point(dropPosition.x, dropPosition.y + 1), gameState.board)) {
                 dropPosition = Point(dropPosition.x, dropPosition.y + 1);
               }
               gameController.placePiece(details.data, dropPosition);
@@ -71,9 +72,10 @@ class GameBoard extends ConsumerWidget {
       );
     });
   }
-  
+
   /// ヘルパーメソッド: ミノの配置可能判定
-  static bool _isValidPosition(Tetromino piece, Point<int> position, List<List<Color?>> board) {
+  static bool _isValidPosition(
+      Tetromino piece, Point<int> position, List<List<Color?>> board) {
     for (final block in piece.shape) {
       final x = position.x + block.x;
       final y = position.y + block.y;
@@ -110,13 +112,15 @@ class GameBoardPainter extends CustomPainter {
       ..color = Colors.grey.withValues(alpha: 0.2)
       ..strokeWidth = 1
       ..style = PaintingStyle.stroke;
-    
+
     // グリッド線を描画
     for (int i = 0; i <= boardWidth; i++) {
-      canvas.drawLine(Offset(i * blockSize, 0), Offset(i * blockSize, size.height), gridPaint);
+      canvas.drawLine(Offset(i * blockSize, 0),
+          Offset(i * blockSize, size.height), gridPaint);
     }
     for (int i = 0; i <= boardHeight; i++) {
-      canvas.drawLine(Offset(0, i * blockSize), Offset(size.width, i * blockSize), gridPaint);
+      canvas.drawLine(Offset(0, i * blockSize),
+          Offset(size.width, i * blockSize), gridPaint);
     }
 
     // 確定したブロックを描画
@@ -127,30 +131,35 @@ class GameBoardPainter extends CustomPainter {
         }
       }
     }
-    
+
     // ドラッグ中のプレビュー（ゴースト）を描画
     if (draggingPiece != null && dragPosition != null) {
       var previewPosition = dragPosition!;
-      
+
       // Auto Drop有効時は最下点を計算
       if (isPreviewValid) {
         var testPos = previewPosition;
-        while (_isValidPosition(draggingPiece!, Point(testPos.x, testPos.y + 1), board)) {
+        while (_isValidPosition(
+            draggingPiece!, Point(testPos.x, testPos.y + 1), board)) {
           testPos = Point(testPos.x, testPos.y + 1);
         }
         previewPosition = testPos;
       }
-      
-      final color = isPreviewValid ? draggingPiece!.color.withValues(alpha: 0.5) : Colors.red.withValues(alpha: 0.5);
+
+      final color = isPreviewValid
+          ? draggingPiece!.color.withValues(alpha: 0.5)
+          : Colors.red.withValues(alpha: 0.5);
       for (final block in draggingPiece!.shape) {
-        final pos = Point(previewPosition.x + block.x, previewPosition.y + block.y);
+        final pos =
+            Point(previewPosition.x + block.x, previewPosition.y + block.y);
         _drawBlock(canvas, pos, color);
       }
     }
   }
 
   /// ミノの配置可能判定
-  bool _isValidPosition(Tetromino piece, Point<int> position, List<List<Color?>> board) {
+  bool _isValidPosition(
+      Tetromino piece, Point<int> position, List<List<Color?>> board) {
     for (final block in piece.shape) {
       final x = position.x + block.x;
       final y = position.y + block.y;
@@ -165,21 +174,25 @@ class GameBoardPainter extends CustomPainter {
   }
 
   void _drawBlock(Canvas canvas, Point<int> pos, Color color) {
-     final rect = Rect.fromLTWH(
+    final rect = Rect.fromLTWH(
       pos.x * blockSize,
       pos.y * blockSize,
       blockSize,
       blockSize,
     );
-    
+
     final paint = Paint()..color = color;
     final borderPaint = Paint()
       ..color = Colors.black.withValues(alpha: 0.3)
       ..strokeWidth = 1.5
       ..style = PaintingStyle.stroke;
 
-    canvas.drawRRect(RRect.fromRectAndRadius(rect.deflate(1.5), const Radius.circular(2)), paint);
-    canvas.drawRRect(RRect.fromRectAndRadius(rect.deflate(1.5), const Radius.circular(2)), borderPaint);
+    canvas.drawRRect(
+        RRect.fromRectAndRadius(rect.deflate(1.5), const Radius.circular(2)),
+        paint);
+    canvas.drawRRect(
+        RRect.fromRectAndRadius(rect.deflate(1.5), const Radius.circular(2)),
+        borderPaint);
   }
 
   @override

@@ -22,10 +22,9 @@ class PieceContainer extends ConsumerWidget {
     if (piece == null) {
       return Container(
         decoration: BoxDecoration(
-          color: Colors.black.withValues(alpha: 0.3),
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: Colors.grey.withValues(alpha: 0.5))
-        ),
+            color: Colors.black.withValues(alpha: 0.3),
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: Colors.grey.withValues(alpha: 0.5))),
       );
     }
 
@@ -37,10 +36,12 @@ class PieceContainer extends ConsumerWidget {
         }
       },
       child: Container(
-         decoration: BoxDecoration(
+        decoration: BoxDecoration(
           color: Colors.black.withValues(alpha: 0.3),
           borderRadius: BorderRadius.circular(8),
-          border: isCurrent ? Border.all(color: Colors.white, width: 2) : Border.all(color: Colors.grey.withValues(alpha: 0.5)),
+          border: isCurrent
+              ? Border.all(color: Colors.white, width: 2)
+              : Border.all(color: Colors.grey.withValues(alpha: 0.5)),
         ),
         child: Padding(
           padding: const EdgeInsets.all(4.0),
@@ -53,18 +54,21 @@ class PieceContainer extends ConsumerWidget {
 
     // isDraggableプロパティのみでドラッグ可否を判定する
     if (isDraggable && piece != null) {
-       return Draggable<Tetromino>(
-         data: piece!,
-         feedback: SizedBox(
-           width: 100, // ドラッグ中の見た目のサイズ
-           height: 100,
-           child: CustomPaint(painter: PiecePainter(piece: piece!, isFeedback: true)),
-         ),
-         onDragStarted: () => gameController.startDragging(piece!),
-         onDraggableCanceled: (velocity, offset) => gameController.stopDragging(),
-         onDragEnd: (details) => gameController.stopDragging(),
-         child: pieceWidget,
-       );
+      return Draggable<Tetromino>(
+        data: piece!,
+        feedback: SizedBox(
+          width: 100, // ドラッグ中の見た目のサイズ
+          height: 100,
+          child: CustomPaint(
+              painter: PiecePainter(piece: piece!, isFeedback: true)),
+        ),
+        feedbackOffset: const Offset(-50, -50), // ← 中心をポインタに合わせる補正
+        onDragStarted: () => gameController.startDragging(piece!),
+        onDraggableCanceled: (velocity, offset) =>
+            gameController.stopDragging(),
+        onDragEnd: (details) => gameController.stopDragging(),
+        child: pieceWidget,
+      );
     } else {
       return pieceWidget;
     }
@@ -82,26 +86,31 @@ class PiecePainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final shape = piece.shape;
     final paint = Paint()..color = piece.color;
-    
+
     // Oミノは中央に、Iミノは少しオフセット、他は標準で描画
-    double offsetX = (piece.type == TetrominoType.O) ? 0.5 : (piece.type == TetrominoType.I ? 0 : 0.5);
+    double offsetX = (piece.type == TetrominoType.O)
+        ? 0.5
+        : (piece.type == TetrominoType.I ? 0 : 0.5);
     double offsetY = (piece.type == TetrominoType.I) ? -0.5 : 0.5;
 
     // 4x4のグリッドに描画
     final blockSize = size.width / 4;
 
     for (final point in shape) {
-       final rect = Rect.fromLTWH(
+      final rect = Rect.fromLTWH(
         (point.x + offsetX) * blockSize,
         (point.y + offsetY) * blockSize,
         blockSize,
         blockSize,
       );
-       final rrect = RRect.fromRectAndRadius(rect.deflate(1.0), const Radius.circular(2));
-       canvas.drawRRect(rrect, paint);
-       if (isFeedback) { // ドラッグ中は半透明にする
-          canvas.drawRRect(rrect, Paint()..color = Colors.black.withValues(alpha: 0.3));
-       }
+      final rrect =
+          RRect.fromRectAndRadius(rect.deflate(1.0), const Radius.circular(2));
+      canvas.drawRRect(rrect, paint);
+      if (isFeedback) {
+        // ドラッグ中は半透明にする
+        canvas.drawRRect(
+            rrect, Paint()..color = Colors.black.withValues(alpha: 0.3));
+      }
     }
   }
 
