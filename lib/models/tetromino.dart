@@ -44,11 +44,9 @@ final Map<TetrominoType, Tetromino> tetrominoes = {
     color: Colors.cyan,
     rotations: [
       [const Point(0, 1), const Point(1, 1), const Point(2, 1), const Point(3, 1)],
-      [const Point(2, 0), const Point(2, 1), const Point(2, 2), const Point(2, 3)],
-      [const Point(0, 2), const Point(1, 2), const Point(2, 2), const Point(3, 2)],
       [const Point(1, 0), const Point(1, 1), const Point(1, 2), const Point(1, 3)],
     ],
-    center: const Point(1.5, 1.5),
+    center: const Point(1.0, 1.0),
   ),
   TetrominoType.O: Tetromino(
     type: TetrominoType.O,
@@ -56,7 +54,7 @@ final Map<TetrominoType, Tetromino> tetrominoes = {
     rotations: [
       [const Point(1, 0), const Point(2, 0), const Point(1, 1), const Point(2, 1)],
     ],
-    center: const Point(0.5, 0.5),
+    center: const Point(1.0, 1.0),
   ),
   TetrominoType.T: Tetromino(
     type: TetrominoType.T,

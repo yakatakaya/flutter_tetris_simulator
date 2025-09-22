@@ -92,7 +92,7 @@ class PiecePainter extends CustomPainter {
     double offsetX = (piece.type == TetrominoType.O)
         ? 0.5
         : (piece.type == TetrominoType.I ? 0 : 0.5);
-    double offsetY = (piece.type == TetrominoType.I) ? -0.5 : 0.5;
+    double offsetY = (piece.type == TetrominoType.I) ? -0 : 0.5;
 
     // 4x4のグリッドに描画
     final blockSize = size.width / 4;
