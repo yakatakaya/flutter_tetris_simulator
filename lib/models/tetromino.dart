@@ -11,11 +11,13 @@ class Tetromino {
   // 回転ごとのブロック形状を保持するリスト
   final List<List<Point<int>>> rotations;
   int _rotationIndex = 0;
+  final Point<double> center; // 回転中心
 
   Tetromino({
     required this.type,
     required this.color,
     required this.rotations,
+    required this.center,
   });
 
   // 現在の回転状態でのブロック形状を取得
@@ -26,6 +28,7 @@ class Tetromino {
         type: type,
         color: color,
         rotations: rotations,
+        center: center,
       ).._rotationIndex = _rotationIndex;
 
   /// 右に90度回転させる
@@ -45,6 +48,7 @@ final Map<TetrominoType, Tetromino> tetrominoes = {
       [const Point(0, 2), const Point(1, 2), const Point(2, 2), const Point(3, 2)],
       [const Point(1, 0), const Point(1, 1), const Point(1, 2), const Point(1, 3)],
     ],
+    center: const Point(1.5, 1.5),
   ),
   TetrominoType.O: Tetromino(
     type: TetrominoType.O,
@@ -52,6 +56,7 @@ final Map<TetrominoType, Tetromino> tetrominoes = {
     rotations: [
       [const Point(1, 0), const Point(2, 0), const Point(1, 1), const Point(2, 1)],
     ],
+    center: const Point(0.5, 0.5),
   ),
   TetrominoType.T: Tetromino(
     type: TetrominoType.T,
@@ -62,6 +67,7 @@ final Map<TetrominoType, Tetromino> tetrominoes = {
       [const Point(0, 1), const Point(1, 1), const Point(2, 1), const Point(1, 2)],
       [const Point(1, 0), const Point(0, 1), const Point(1, 1), const Point(1, 2)],
     ],
+    center: const Point(1.0, 1.0), 
   ),
   TetrominoType.S: Tetromino(
     type: TetrominoType.S,
@@ -70,6 +76,7 @@ final Map<TetrominoType, Tetromino> tetrominoes = {
       [const Point(1, 0), const Point(2, 0), const Point(0, 1), const Point(1, 1)],
       [const Point(1, 0), const Point(1, 1), const Point(2, 1), const Point(2, 2)],
     ],
+    center: const Point(1.0, 1.0),
   ),
   TetrominoType.Z: Tetromino(
     type: TetrominoType.Z,
@@ -78,6 +85,7 @@ final Map<TetrominoType, Tetromino> tetrominoes = {
       [const Point(0, 0), const Point(1, 0), const Point(1, 1), const Point(2, 1)],
       [const Point(2, 0), const Point(1, 1), const Point(2, 1), const Point(1, 2)],
     ],
+    center: const Point(1.0, 1.0),
   ),
   TetrominoType.J: Tetromino(
     type: TetrominoType.J,
@@ -88,6 +96,7 @@ final Map<TetrominoType, Tetromino> tetrominoes = {
       [const Point(0, 1), const Point(1, 1), const Point(2, 1), const Point(2, 2)],
       [const Point(1, 0), const Point(1, 1), const Point(0, 2), const Point(1, 2)],
     ],
+    center: const Point(1.0, 1.0),
   ),
   TetrominoType.L: Tetromino(
     type: TetrominoType.L,
@@ -98,5 +107,6 @@ final Map<TetrominoType, Tetromino> tetrominoes = {
       [const Point(0, 1), const Point(1, 1), const Point(2, 1), const Point(0, 2)],
       [const Point(0, 0), const Point(1, 0), const Point(1, 1), const Point(1, 2)],
     ],
+    center: const Point(1.0, 1.0),
   ),
 };

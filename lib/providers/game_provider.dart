@@ -55,13 +55,28 @@ class GameController extends Notifier<GameState> {
     );
   }
 
+  /// 盤面上でのドラッグ位置を更新
   void updateDragPosition(Point<int> position) {
     if (state.draggingPiece == null) return;
-    final isValid = _isValidPosition(state.draggingPiece!, position, state.board);
+
+    // <<< --- 変更ここから --- >>>
+    final piece = state.draggingPiece!;
+    
+    // カーソル位置(position)からミノの中心座標を引いて、
+    // ミノの原点(左上)が配置されるべき座標を計算する
+    final adjustedPosition = Point<int>(
+      (position.x - piece.center.x).round(),
+      (position.y - piece.center.y).round(),
+    );
+
+    final isValid = _isValidPosition(piece, adjustedPosition, state.board);
+    
     state = state.copyWith(
-      dragPosition: position,
+      // stateには計算後の座標を保存する
+      dragPosition: adjustedPosition, 
       isPreviewValid: isValid,
     );
+    // <<< --- 変更ここまで --- >>>
   }
   
   void placePiece(Tetromino piece, Point<int> position) {

@@ -52,20 +52,21 @@ class PieceContainer extends ConsumerWidget {
       ),
     );
 
-    // isDraggableプロパティのみでドラッグ可否を判定する
     if (isDraggable && piece != null) {
       return Draggable<Tetromino>(
+        dragAnchorStrategy: pointerDragAnchorStrategy,
         data: piece!,
-        feedback: SizedBox(
-          width: 100, // ドラッグ中の見た目のサイズ
-          height: 100,
-          child: CustomPaint(
-              painter: PiecePainter(piece: piece!, isFeedback: true)),
-        ),
-        feedbackOffset: const Offset(-50, -50), // ← 中心をポインタに合わせる補正
+        feedback: Transform.translate( // <<< 変更点: Transform.translateでラップ
+          // SizedBoxの半分のサイズだけ左上（マイナス方向）にずらす
+          offset: const Offset(-50, -50), 
+          child: SizedBox(
+            width: 100,
+            height: 100,
+            child: CustomPaint(painter: PiecePainter(piece: piece!, isFeedback: true)),
+          ),
+        ), // <<< 変更点ここまで
         onDragStarted: () => gameController.startDragging(piece!),
-        onDraggableCanceled: (velocity, offset) =>
-            gameController.stopDragging(),
+        onDraggableCanceled: (velocity, offset) => gameController.stopDragging(),
         onDragEnd: (details) => gameController.stopDragging(),
         child: pieceWidget,
       );
