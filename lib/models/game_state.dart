@@ -1,7 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'tetromino.dart';
-import '../constants.dart'; // 定数ファイルをインポート
+import 'game_mode.dart';
 
 /// ゲームの状態を管理するクラス
 class GameState {
@@ -16,6 +16,7 @@ class GameState {
   final bool canHold;
   final bool autoDrop;
   final bool isLeftHanded;
+  final GameMode mode; // 追加: ゲームモードを表すフィールド
 
   GameState({
     required this.board,
@@ -28,6 +29,7 @@ class GameState {
     this.canHold = true,
     this.autoDrop = true,
     this.isLeftHanded = false,
+    required this.mode, 
   });
   static List<Tetromino> generate7Bag() {
     final types = TetrominoType.values.toList()..shuffle();
@@ -35,11 +37,18 @@ class GameState {
   }
 
 
-  factory GameState.initial() {
+  factory GameState.initial({GameMode? mode}) {
+    // 1. 使用するモードを決定する (これはローカル変数)
+    final selectedMode = mode ?? GameModes.defaultMode;
+
+    // 2. 決定したモードを使って、インスタンス生成に必要なデータをすべて事前に準備する
+    final initialBoard = selectedMode.createInitialBoard();
+    final initialQueue = selectedMode.generateInitialQueue();
     return GameState(
-      board: List.generate(
-          boardHeight, (_) => List.generate(boardWidth, (_) => null)),
-      queue: generate7Bag(),
+      // モードクラスのメソッドを呼び出すだけで盤面が作れる
+      board: initialBoard, 
+      queue: initialQueue,
+      mode: selectedMode,
     );
   }
 
@@ -59,6 +68,7 @@ class GameState {
     bool? canHold,
     bool? autoDrop,
     bool? isLeftHanded,
+    GameMode? mode,
   }) {
     return GameState(
       board: board ?? this.board,
@@ -71,6 +81,7 @@ class GameState {
       canHold: canHold ?? this.canHold,
       autoDrop: autoDrop ?? this.autoDrop,
       isLeftHanded: isLeftHanded ?? this.isLeftHanded,
+      mode: mode ?? this.mode,
     );
   }
 }

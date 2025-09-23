@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/game_state.dart';
 import '../models/tetromino.dart';
 import '../constants.dart'; // 定数ファイルをインポート
+import '../models/game_mode.dart';
 
 final gameProvider = NotifierProvider<GameController, GameState>(GameController.new);
 
@@ -15,12 +16,11 @@ class GameController extends Notifier<GameState> {
   GameState build() {
     return GameState.initial();
   }
-
   Tetromino _getNextPiece() {
     final nextPiece = state.queue.first;
     var newQueue = state.queue.sublist(1);
     if (newQueue.length < 7) {
-      newQueue.addAll(GameState.generate7Bag());
+      newQueue.addAll(state.mode.generateQueue());
     }
     state = state.copyWith(queue: newQueue);
     return nextPiece;
@@ -153,9 +153,20 @@ class GameController extends Notifier<GameState> {
     return !_isValidPosition(nextPiece, const Point(3, 0), board);
   }
 
+   /// ゲームをリセットする
   void resetGame() {
     _history.clear();
-    state = GameState.initial().copyWith(queueDisplayCount: state.queueDisplayCount);
+    // <<< 変更: 現在のモードを維持したまま初期化 >>>
+    final newState = GameState.initial(mode: state.mode);
+    state = newState.copyWith(queue: newState.mode.generateInitialQueue(), queueDisplayCount: state.queueDisplayCount, autoDrop: state.autoDrop, isLeftHanded: state.isLeftHanded);
+  }
+
+  /// ゲームモードを変更し、ゲームをリセットする
+  void changeMode(GameMode newMode) { // <<< 引数の型を変更
+    _history.clear();
+    // <<< 変更: 新しいモードで初期化 >>>
+    final newState = GameState.initial(mode: newMode);
+    state = newState.copyWith(queue: newState.mode.generateInitialQueue(), queueDisplayCount: state.queueDisplayCount, autoDrop: state.autoDrop, isLeftHanded: state.isLeftHanded);
   }
 
   void setQueueDisplayCount(int count) {
