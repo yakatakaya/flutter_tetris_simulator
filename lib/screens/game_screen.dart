@@ -12,6 +12,7 @@ class GameScreen extends ConsumerWidget {
     // ( ... GameScreenのbuildメソッドのコードをここに貼り付け ... )
     final size = MediaQuery.of(context).size;
     final isPortrait = size.height > size.width;
+    final gameState = ref.watch(gameProvider);
 
     return PopScope(
       canPop: false,
@@ -23,7 +24,21 @@ class GameScreen extends ConsumerWidget {
               children: [
                 Expanded(
                   child: isPortrait
+                    ? gameState.isLeftHanded
                     ? Row(
+                        children: [
+                          Expanded(
+                            flex: 1,
+                            child: SidePanel()
+                          ), 
+                          const SizedBox(width: 8),
+                          const Expanded(
+                            flex: 3,
+                            child: GameBoard(),
+                          )]
+                        )
+                      
+                    : Row(
                         children: [
                           const Expanded(
                             flex: 3,
@@ -131,15 +146,40 @@ class GameScreen extends ConsumerWidget {
                                 onPressed: (index) {
                                   gameController.setAutoDrop(!isAutoDrop);
                                 },
-                                children: const [
+                                children: [
                                   Padding(
                                     padding: EdgeInsets.symmetric(horizontal: 12),
-                                    child: Text("ON"),
+                                    child: isAutoDrop ? Text("ON") : Text("OFF"),
                                   ),
                                 ],
                               );
                             },
                           ),
+                          
+                        ],
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text("Left Handed Mode"),
+                          Consumer(
+                            builder: (context, ref, _) {
+                              final isLeftHanded = ref.watch(gameProvider).isLeftHanded;
+                              return ToggleButtons(
+                                isSelected: [isLeftHanded],
+                                onPressed: (index) {
+                                  gameController.setIsLeftHanded( !isLeftHanded);
+                                },
+                                children: [
+                                  Padding(
+                                    padding: EdgeInsets.symmetric(horizontal: 12),
+                                    child: isLeftHanded ? Text("ON") : Text("OFF"),
+                                  ),
+                                ],
+                              );
+                            },
+                          ),
+                          
                         ],
                       ),
                     ],

@@ -15,6 +15,7 @@ class GameState {
   final bool isPreviewValid;
   final bool canHold;
   final bool autoDrop;
+  final bool isLeftHanded;
 
   GameState({
     required this.board,
@@ -26,6 +27,7 @@ class GameState {
     this.isPreviewValid = false,
     this.canHold = true,
     this.autoDrop = true,
+    this.isLeftHanded = false,
   });
   static List<Tetromino> generate7Bag() {
     final types = TetrominoType.values.toList()..shuffle();
@@ -56,6 +58,7 @@ class GameState {
     bool? isPreviewValid,
     bool? canHold,
     bool? autoDrop,
+    bool? isLeftHanded,
   }) {
     return GameState(
       board: board ?? this.board,
@@ -67,6 +70,7 @@ class GameState {
       isPreviewValid: isPreviewValid ?? this.isPreviewValid,
       canHold: canHold ?? this.canHold,
       autoDrop: autoDrop ?? this.autoDrop,
+      isLeftHanded: isLeftHanded ?? this.isLeftHanded,
     );
   }
 }

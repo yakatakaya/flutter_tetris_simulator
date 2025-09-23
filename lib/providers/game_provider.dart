@@ -165,4 +165,8 @@ class GameController extends Notifier<GameState> {
   void setAutoDrop(bool value) {
     state = state.copyWith(autoDrop: value);
   }
+
+  void setIsLeftHanded(bool value) {
+    state = state.copyWith(isLeftHanded: value);
+  }
 }
