@@ -281,6 +281,7 @@ class TsdOpener extends GameMode {
       [null, null, null, null, null, null, null, null, null, null],
       [null, null, null, null, null, null, null, null, null, null],
       [null, null, null, null, null, null, null, null, null, null],
+      [null, null, null, null, null, null, null, null, null, null],
       [null, null, null, Colors.grey, Colors.grey, Colors.grey, null, null, null, null],
       [Colors.grey, null, null, Colors.grey, Colors.grey, Colors.grey, Colors.grey, null, null, null],
       [Colors.grey, null, null, null, Colors.grey, Colors.grey, Colors.grey, Colors.grey, Colors.grey, Colors.grey],
